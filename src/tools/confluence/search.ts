@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ConfluenceClient } from "../../client/confluence.js";
+import type { IConfluenceClient } from "../../client/confluence.js";
 
 const SearchSchema = z.object({
   cql: z
@@ -20,7 +20,7 @@ const SearchSchema = z.object({
 
 export function registerConfluenceSearch(
   server: McpServer,
-  confluence: ConfluenceClient
+  confluence: IConfluenceClient
 ): void {
   server.tool(
     "confluence_search",

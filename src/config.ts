@@ -14,8 +14,10 @@ const ConfigSchema = z.object({
 
 export type Config = z.infer<typeof ConfigSchema>;
 
-function loadConfig(): Config {
-  const result = ConfigSchema.safeParse(process.env);
+export function loadConfig(
+  env: Record<string, string | undefined> = process.env
+): Config {
+  const result = ConfigSchema.safeParse(env);
   if (!result.success) {
     const missing = result.error.errors
       .map((e) => `  ${e.path.join(".")}: ${e.message}`)
@@ -25,4 +27,3 @@ function loadConfig(): Config {
   return result.data;
 }
 
-export const config = loadConfig();

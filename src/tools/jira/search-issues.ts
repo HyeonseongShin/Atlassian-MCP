@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { JiraClient } from "../../client/jira.js";
+import type { IJiraClient } from "../../client/jira.js";
 
 const SearchIssuesSchema = z.object({
   jql: z.string().describe("JQL query string (e.g. 'assignee = currentUser()')"),
@@ -20,7 +20,7 @@ const SearchIssuesSchema = z.object({
 
 export function registerSearchIssues(
   server: McpServer,
-  jira: JiraClient
+  jira: IJiraClient
 ): void {
   server.tool(
     "jira_search_issues",

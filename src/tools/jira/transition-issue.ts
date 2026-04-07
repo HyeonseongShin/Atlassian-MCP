@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { JiraClient } from "../../client/jira.js";
+import type { IJiraClient } from "../../client/jira.js";
 
 const TransitionIssueSchema = z.object({
   issueKey: z.string().describe("Issue key (e.g. ENG-123)"),
@@ -14,7 +14,7 @@ const TransitionIssueSchema = z.object({
 
 export function registerTransitionIssue(
   server: McpServer,
-  jira: JiraClient
+  jira: IJiraClient
 ): void {
   server.tool(
     "jira_transition_issue",

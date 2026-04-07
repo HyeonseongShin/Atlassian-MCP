@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ConfluenceClient } from "../../client/confluence.js";
+import type { IConfluenceClient } from "../../client/confluence.js";
 
 const CreatePageSchema = z.object({
   spaceKey: z.string().describe("Space key (e.g. ENG)"),
@@ -16,7 +16,7 @@ const CreatePageSchema = z.object({
 
 export function registerCreatePage(
   server: McpServer,
-  confluence: ConfluenceClient
+  confluence: IConfluenceClient
 ): void {
   server.tool(
     "confluence_create_page",

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ConfluenceClient } from "../../client/confluence.js";
+import type { IConfluenceClient } from "../../client/confluence.js";
 
 const GetPageShape = {
   pageId: z.string().optional().describe("Page ID (numeric string)"),
@@ -20,7 +20,7 @@ const GetPageSchema = z.object(GetPageShape).refine(
 
 export function registerGetPage(
   server: McpServer,
-  confluence: ConfluenceClient
+  confluence: IConfluenceClient
 ): void {
   server.tool(
     "confluence_get_page",

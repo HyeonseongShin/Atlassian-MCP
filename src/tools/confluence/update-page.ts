@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ConfluenceClient } from "../../client/confluence.js";
+import type { IConfluenceClient } from "../../client/confluence.js";
 
 const UpdatePageSchema = z.object({
   pageId: z.string().describe("Page ID"),
@@ -20,7 +20,7 @@ const UpdatePageSchema = z.object({
 
 export function registerUpdatePage(
   server: McpServer,
-  confluence: ConfluenceClient
+  confluence: IConfluenceClient
 ): void {
   server.tool(
     "confluence_update_page",

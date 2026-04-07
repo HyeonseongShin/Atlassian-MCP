@@ -1,13 +1,16 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { resetAutoApprove } from "../confirm.js";
+import type { IConfirmationGate } from "../confirm.js";
 
-export function registerResetAutoApprove(server: McpServer): void {
+export function registerResetAutoApprove(
+  server: McpServer,
+  gate: IConfirmationGate
+): void {
   server.tool(
     "atlassian_reset_auto_approve",
     "Reset the session auto-approve state. After calling this, all API requests will show the confirmation prompt again.",
     {},
     async () => {
-      resetAutoApprove();
+      gate.reset();
       return {
         content: [
           {

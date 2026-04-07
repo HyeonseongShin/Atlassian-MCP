@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { JiraClient } from "../../client/jira.js";
+import type { IJiraClient } from "../../client/jira.js";
 
 const UpdateIssueSchema = z.object({
   issueKey: z.string().describe("Issue key (e.g. ENG-123)"),
@@ -15,7 +15,7 @@ const UpdateIssueSchema = z.object({
 
 export function registerUpdateIssue(
   server: McpServer,
-  jira: JiraClient
+  jira: IJiraClient
 ): void {
   server.tool(
     "jira_update_issue",

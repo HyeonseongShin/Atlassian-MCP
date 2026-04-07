@@ -1,9 +1,9 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { JiraClient } from "../../client/jira.js";
+import type { IJiraClient } from "../../client/jira.js";
 
 export function registerListProjects(
   server: McpServer,
-  jira: JiraClient
+  jira: IJiraClient
 ): void {
   server.tool(
     "jira_list_projects",

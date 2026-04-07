@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ConfluenceClient } from "../../client/confluence.js";
+import type { IConfluenceClient } from "../../client/confluence.js";
 
 const ListSpacesSchema = z.object({
   limit: z
@@ -19,7 +19,7 @@ const ListSpacesSchema = z.object({
 
 export function registerListSpaces(
   server: McpServer,
-  confluence: ConfluenceClient
+  confluence: IConfluenceClient
 ): void {
   server.tool(
     "confluence_list_spaces",

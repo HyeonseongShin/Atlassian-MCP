@@ -1,13 +1,13 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { JiraClient } from "../../client/jira.js";
+import type { IJiraClient } from "../../client/jira.js";
 
 const AddCommentSchema = z.object({
   issueKey: z.string().describe("Issue key (e.g. ENG-123)"),
   body: z.string().describe("Comment body (plain text)"),
 });
 
-export function registerAddComment(server: McpServer, jira: JiraClient): void {
+export function registerAddComment(server: McpServer, jira: IJiraClient): void {
   server.tool(
     "jira_add_comment",
     "Add a comment to a JIRA issue",

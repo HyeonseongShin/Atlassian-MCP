@@ -1,4 +1,5 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { IConfirmationGate } from "../confirm.js";
+import type { IHttpFetcher } from "./atlassian.js";
 import { AtlassianBaseClient } from "./atlassian.js";
 
 export interface ConfluencePage {
@@ -42,16 +43,44 @@ export interface ConfluenceSpaceList {
   size: number;
 }
 
-export class ConfluenceClient extends AtlassianBaseClient {
+export interface IConfluenceClient {
+  search(cql: string, limit?: number): Promise<ConfluenceSearchResult>;
+  getPageById(pageId: string): Promise<ConfluencePage>;
+  getPageByTitle(
+    spaceKey: string,
+    title: string
+  ): Promise<ConfluencePage | null>;
+  createPage(
+    spaceKey: string,
+    title: string,
+    body: string,
+    parentId?: string
+  ): Promise<ConfluencePage>;
+  updatePage(
+    pageId: string,
+    title: string,
+    body: string,
+    currentVersion: number
+  ): Promise<ConfluencePage>;
+  listSpaces(
+    limit?: number,
+    type?: "global" | "personal"
+  ): Promise<ConfluenceSpaceList>;
+}
+
+export class ConfluenceClient
+  extends AtlassianBaseClient
+  implements IConfluenceClient
+{
   readonly serviceName = "Confluence" as const;
 
   constructor(
-    server: McpServer,
+    gate: IConfirmationGate,
     baseUrl: string,
     token: string,
-    requireConfirm: boolean
+    fetcher?: IHttpFetcher
   ) {
-    super(server, baseUrl, token, requireConfirm);
+    super(gate, baseUrl, token, fetcher);
   }
 
   async search(cql: string, limit?: number): Promise<ConfluenceSearchResult> {

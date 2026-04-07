@@ -1,29 +1,29 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createServer } from "./server.js";
-import { config } from "./config.js";
+import { loadConfig } from "./config.js";
+import { McpConfirmationGate, NoopConfirmationGate } from "./confirm.js";
 import { JiraClient } from "./client/jira.js";
 import { ConfluenceClient } from "./client/confluence.js";
 import { registerAllTools } from "./tools/index.js";
 
 async function main(): Promise<void> {
+  const config = loadConfig();
   const server = createServer();
 
   const requireConfirm = config.ATLASSIAN_MCP_REQUIRE_CONFIRM;
 
-  const jira = new JiraClient(
-    server,
-    config.JIRA_BASE_URL,
-    config.JIRA_API_TOKEN,
-    requireConfirm
-  );
+  const gate = requireConfirm
+    ? new McpConfirmationGate(server)
+    : new NoopConfirmationGate();
+
+  const jira = new JiraClient(gate, config.JIRA_BASE_URL, config.JIRA_API_TOKEN);
   const confluence = new ConfluenceClient(
-    server,
+    gate,
     config.CONFLUENCE_BASE_URL,
-    config.CONFLUENCE_API_TOKEN,
-    requireConfirm
+    config.CONFLUENCE_API_TOKEN
   );
 
-  registerAllTools(server, jira, confluence);
+  registerAllTools(server, jira, confluence, gate);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

@@ -1,23 +1,32 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { confirmRequest, type RequestInfo } from "../confirm.js";
+import type { IConfirmationGate, RequestInfo } from "../confirm.js";
+
+export interface IHttpFetcher {
+  fetch(url: string, init: RequestInit): Promise<Response>;
+}
+
+class NodeFetch implements IHttpFetcher {
+  async fetch(url: string, init: RequestInit): Promise<Response> {
+    return globalThis.fetch(url, init);
+  }
+}
 
 export abstract class AtlassianBaseClient {
   readonly baseUrl: string;
   private readonly token: string;
-  protected readonly server: McpServer;
-  private readonly requireConfirm: boolean;
+  private readonly gate: IConfirmationGate;
+  private readonly fetcher: IHttpFetcher;
   abstract readonly serviceName: "JIRA" | "Confluence";
 
   constructor(
-    server: McpServer,
+    gate: IConfirmationGate,
     baseUrl: string,
     token: string,
-    requireConfirm: boolean
+    fetcher: IHttpFetcher = new NodeFetch()
   ) {
-    this.server = server;
+    this.gate = gate;
     this.baseUrl = baseUrl.replace(/\/$/, "");
     this.token = token;
-    this.requireConfirm = requireConfirm;
+    this.fetcher = fetcher;
   }
 
   protected async request<T>(
@@ -34,9 +43,7 @@ export abstract class AtlassianBaseClient {
       body,
     };
 
-    const confirmedReq = this.requireConfirm
-      ? await confirmRequest(this.server, req)
-      : req;
+    const confirmedReq = await this.gate.confirm(req);
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${this.token}`,
@@ -57,7 +64,7 @@ export abstract class AtlassianBaseClient {
       fetchOptions.body = JSON.stringify(confirmedReq.body);
     }
 
-    const response = await fetch(confirmedReq.url, fetchOptions);
+    const response = await this.fetcher.fetch(confirmedReq.url, fetchOptions);
 
     if (response.status === 401) {
       throw new Error(

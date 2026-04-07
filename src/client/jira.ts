@@ -1,4 +1,5 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { IConfirmationGate } from "../confirm.js";
+import type { IHttpFetcher } from "./atlassian.js";
 import { AtlassianBaseClient } from "./atlassian.js";
 
 export interface JiraIssue {
@@ -28,16 +29,38 @@ export interface JiraTransition {
   to: { name: string };
 }
 
-export class JiraClient extends AtlassianBaseClient {
+export interface IJiraClient {
+  readonly baseUrl: string;
+  getBrowseUrl(issueKey: string): string;
+  searchIssues(
+    jql: string,
+    fields?: string[],
+    maxResults?: number
+  ): Promise<JiraSearchResult>;
+  getIssue(issueKey: string): Promise<JiraIssue>;
+  createIssue(fields: Record<string, unknown>): Promise<JiraIssue>;
+  updateIssue(issueKey: string, fields: Record<string, unknown>): Promise<void>;
+  addComment(
+    issueKey: string,
+    body: string
+  ): Promise<Record<string, unknown>>;
+  listProjects(): Promise<JiraProject[]>;
+  getTransitions(
+    issueKey: string
+  ): Promise<{ transitions: JiraTransition[] }>;
+  doTransition(issueKey: string, transitionId: string): Promise<void>;
+}
+
+export class JiraClient extends AtlassianBaseClient implements IJiraClient {
   readonly serviceName = "JIRA" as const;
 
   constructor(
-    server: McpServer,
+    gate: IConfirmationGate,
     baseUrl: string,
     token: string,
-    requireConfirm: boolean
+    fetcher?: IHttpFetcher
   ) {
-    super(server, baseUrl, token, requireConfirm);
+    super(gate, baseUrl, token, fetcher);
   }
 
   /** Returns the browser-accessible URL for the given issue key. */
