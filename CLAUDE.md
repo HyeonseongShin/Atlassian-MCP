@@ -18,6 +18,37 @@ docker build -t atlassian-mcp .   # Docker 이미지 빌드
 
 ---
 
+## 테스트 철학 (최우선 원칙)
+
+이 프로젝트는 **TDD를 최우선으로** 한다. 새 기능 추가나 버그 수정 시 **테스트를 먼저 작성**하고 구현한다.
+
+### 테스트 가능한 코드 작성 규칙
+- **인터페이스 의존**: 새 계층을 추가할 때 구체 클래스 대신 인터페이스에 의존한다. 현재 핵심 인터페이스: `IConfirmationGate`, `IHttpFetcher`, `IJiraClient`, `IConfluenceClient`.
+- **전역 상태 금지**: 가변 상태는 반드시 클래스 인스턴스 필드에 둔다. 모듈 레벨 `let` 변수는 테스트 간 오염을 유발하므로 사용 금지.
+- **모듈 로드 시 부작용 금지**: `export const x = heavyInit()` 패턴 금지. 초기화는 함수 호출로 지연시킨다 (예: `loadConfig()` → `src/index.ts`의 `main()` 내에서 호출).
+- **테스트 파일 co-location**: `foo.ts` 옆에 `foo.test.ts`. 별도 `__tests__` 디렉터리 사용 금지.
+- **신규 툴에 테스트 필수**: `src/tools/<service>/<tool-name>.ts`를 추가하면 반드시 `src/tools/<service>/<tool-name>.test.ts`도 함께 작성한다. 테스트 없는 툴은 완성되지 않은 것으로 간주한다.
+
+### 커버리지 기준
+- 라인/함수 커버리지 **70% 이상** 유지 필수 (현재 베이스라인 ~94%).
+- `npm run test:coverage`로 확인. `src/index.ts`와 aggregator `index.ts`는 커버리지 제외 대상.
+
+### Mock 패턴
+```typescript
+// 클라이언트 mock: IHttpFetcher로 HTTP 레이어 교체
+const fakeFetcher: IHttpFetcher = { fetch: vi.fn().mockResolvedValue(new Response(...)) };
+const client = new JiraClient(new NoopConfirmationGate(), "https://jira.example.com", "token", fakeFetcher);
+
+// 툴 mock: server.tool() 핸들러를 직접 추출해 실행
+let capturedHandler: Function;
+const mockServer = { tool: (_n, _d, _s, h) => { capturedHandler = h; } } as unknown as McpServer;
+const mockJira: IJiraClient = { searchIssues: vi.fn().mockResolvedValue({...}), ... };
+registerSearchIssues(mockServer, mockJira);
+const result = await capturedHandler({ jql: "project = ENG" });
+```
+
+---
+
 ## 코드 구조 규칙
 
 ### 타입 정의

@@ -151,6 +151,32 @@ ATLASSIAN_MCP_REQUIRE_CONFIRM=false
 
 ---
 
+## Testing Philosophy
+
+This project treats testing as a first-class concern. **TDD (Test-Driven Development) is the preferred workflow** — write the test before the implementation.
+
+### Key principles
+
+- **Test-first by default**: Before adding a feature or fixing a bug, write a failing test that captures the expected behavior, then make it pass.
+- **Testable architecture**: The codebase uses interface-based design (`IConfirmationGate`, `IHttpFetcher`, `IJiraClient`, `IConfluenceClient`) so every layer can be tested in isolation with mock objects.
+- **No global state**: Mutable state lives in class instances, not module-level variables, so tests never bleed into each other.
+- **Co-located tests**: Test files sit next to the files they test (`foo.ts` / `foo.test.ts`).
+- **Coverage target**: Line and function coverage must stay at or above **70%**. The current baseline is ~94%.
+
+### Running tests
+
+```bash
+npm test                 # run all tests once
+npm run test:watch       # watch mode (during TDD cycles)
+npm run test:coverage    # generate coverage report
+```
+
+### Adding new tools
+
+When adding a new tool (`src/tools/<service>/<tool-name>.ts`), always create the accompanying test file (`src/tools/<service>/<tool-name>.test.ts`) in the same PR. A tool without tests will not be merged.
+
+---
+
 ## Docker 직접 실행 (테스트용)
 
 ```bash
