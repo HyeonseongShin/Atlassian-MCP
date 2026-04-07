@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "atlassian": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "--env-file", "/absolute/path/to/atlassian-mcp/.env",
+        "atlassian-mcp:latest"
+      ]
+    }
+  }
+}
